@@ -1,4 +1,4 @@
-package com.urbanthreads.inventoryservice.model;
+package com.urbanthreads.inventoryservice.other;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
