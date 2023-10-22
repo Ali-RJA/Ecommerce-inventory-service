@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-
+import java.util.HashSet;
+import java.util.Set;
 import java.math.BigDecimal;
 
 @Setter
@@ -29,8 +30,8 @@ public class Item {
     private int stockQuantity;
     @Column(name = "category")
     private String category;
-    @Column(name = "image_url")
-    private String imageUrl;
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Image> images = new HashSet<>();
 
 
     public Item() {
