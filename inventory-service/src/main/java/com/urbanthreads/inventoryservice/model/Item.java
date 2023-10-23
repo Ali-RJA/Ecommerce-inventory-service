@@ -11,11 +11,19 @@ import java.math.BigDecimal;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @Entity
+@AllArgsConstructor
 @Table(name= "Item")
 public class Item {
 
+    public Item(Long id, String itemName, String description, BigDecimal price, int stockQuantity, String category) {
+        this.id = id;
+        this.itemName = itemName;
+        this.description = description;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.category = category;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
