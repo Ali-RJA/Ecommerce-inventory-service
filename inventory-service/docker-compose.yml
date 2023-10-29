@@ -1,0 +1,14 @@
+version: '3'
+services:
+  frontend:
+    image: xinnanm/frontend:latest
+    ports:
+      - "80:80"
+  order-service:
+    image: xinnanm/order-service:latest
+    ports:
+      - "8082:8080"
+  inventory-service:
+    image: xinnanm/inventory-service:latest
+    ports:
+      - "8081:8080"
