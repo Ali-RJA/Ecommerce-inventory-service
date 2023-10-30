@@ -1,21 +1,27 @@
 package com.urbanthreads.inventoryservice.controller;
 
 
+import com.urbanthreads.inventoryservice.DTO.ItemDTO;
 import com.urbanthreads.inventoryservice.model.Item;
 import com.urbanthreads.inventoryservice.repo.ItemRepository;
+import com.urbanthreads.inventoryservice.service.InventoryService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/urban-threads")
 public class InventoryController {
 
 
-
+    @Autowired
+    InventoryService inventoryService;
     @PostConstruct
     public void loadItems() {
         List<Item> items = new ArrayList<>();
@@ -62,6 +68,22 @@ public class InventoryController {
         return itemRepository.findById(id).orElseThrow();
     }
 
+    @GetMapping("/quicktest")
+    Map<Long, Integer> quickTest() {
+        List<Long> list = new ArrayList<>();
+        list.add(2l);
+        list.add(3l);
+        list.add(4l);
+        list.add(5l);
+
+        return inventoryService.stockQuantity(list).get();
+    }
+    @GetMapping("/itemsbyname")
+    List<ItemDTO> itemsByName(@RequestParam String name) {
+        System.out.println("The name input is: "+name);
+        Optional<List<ItemDTO>> optional = inventoryService.itemsByName(name);
+        return optional.get();
+    }
     @PostMapping("/items")
     Item newItem(@RequestBody Item newItem) {
         return itemRepository.save(newItem);

@@ -24,8 +24,8 @@ public interface InventoryService {
 
 
     Optional<Page> itemPage(Pageable pageable);
-    Optional<List<Item>> itemsByName(String name);
-    Optional<List<Item>> itemsByIds(List<Long> ids);
+    Optional<List<ItemDTO>> itemsByName(String name);
+    Optional<List<ItemDTO>> itemsByIds(List<Long> ids);
     Optional<Map<Long,Integer>> stockQuantity(List<Long> ids);
     Optional<List<Long>> reduceStock(Map<Long,Integer> purchaseItems);
     Optional<Integer> removeItems(List<Long> ids);
