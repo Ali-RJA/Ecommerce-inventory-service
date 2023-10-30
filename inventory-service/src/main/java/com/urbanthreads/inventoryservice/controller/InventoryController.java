@@ -68,15 +68,9 @@ public class InventoryController {
         return itemRepository.findById(id).orElseThrow();
     }
 
-    @GetMapping("/quicktest")
-    Map<Long, Integer> quickTest() {
-        List<Long> list = new ArrayList<>();
-        list.add(2l);
-        list.add(3l);
-        list.add(4l);
-        list.add(5l);
-
-        return inventoryService.stockQuantity(list).get();
+    @GetMapping("/availableitems")
+    Map<Long, Integer> stockItemsById(@RequestParam List<Long> requestedItems) {
+        return inventoryService.stockQuantity(requestedItems).get();
     }
     @GetMapping("/itemsbyname")
     List<ItemDTO> itemsByName(@RequestParam String name) {

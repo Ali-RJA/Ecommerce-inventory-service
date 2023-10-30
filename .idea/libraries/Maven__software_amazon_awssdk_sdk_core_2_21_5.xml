@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: software.amazon.awssdk:sdk-core:2.21.5">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/sdk-core/2.21.5/sdk-core-2.21.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/sdk-core/2.21.5/sdk-core-2.21.5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/software/amazon/awssdk/sdk-core/2.21.5/sdk-core-2.21.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
