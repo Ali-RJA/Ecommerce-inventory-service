@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @Entity
 @AllArgsConstructor
 @Table(name= "Item")
+@Check(constraints = "stock_quantity >= 0")
 public class Item {
 
     public Item(Long id, String itemName, String description, BigDecimal price, int stockQuantity, String category) {

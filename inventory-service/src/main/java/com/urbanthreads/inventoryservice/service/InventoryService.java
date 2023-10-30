@@ -1,22 +1,36 @@
 package com.urbanthreads.inventoryservice.service;
+import com.urbanthreads.inventoryservice.DTO.ItemDTO;
 import com.urbanthreads.inventoryservice.model.Item;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface InventoryService {
 
     /*
 
-    - Return all items available in the inventory
-    - Return all available items in the inventory for a given name or id.
+    - Return all items available in the inventory (pages)
+    - Return all items in the inventory for a given match case RegEX item name.
+    - Return all items in the inventory for a given list<id>
+    - Return all <stock quantities, id> for a given list<id>
+    - Reduce and Return all <id> for a given list <id, reduceAmount> [repeatable read]
+    - Remove all items for a given list<id> [repeatable read]
+    - Add item
+    - Edit item [repeatable read]
      */
 
 
-    public Optional<List<Item>> getAllAvailableItems();
-    public Optional<List<Item>> getAvailableItemsOnId(long id);
-    public List<Item> getAvailableItemsOnName(String itemName);
-
+    Optional<Page> itemPage(Pageable pageable);
+    Optional<List<Item>> itemsByName(String name);
+    Optional<List<Item>> itemsByIds(List<Long> ids);
+    Optional<Map<Long,Integer>> stockQuantity(List<Long> ids);
+    Optional<List<Long>> reduceStock(Map<Long,Integer> purchaseItems);
+    Optional<Integer> removeItems(List<Long> ids);
+    Optional<Long> addItem(ItemDTO item);
+    Optional<Long> editItem(ItemDTO item);
 
 
 }
