@@ -5,6 +5,7 @@ import com.urbanthreads.inventoryservice.model.Item;
 import com.urbanthreads.inventoryservice.repo.ItemRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,28 +99,40 @@ public class InventoryServiceImpl implements InventoryService{
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ, rollbackFor = Exception.class)
+    public void reduceStock(Map<Long, Integer> purchaseItems) throws Exception {
+        String hql = "UPDATE Item e SET e.stockQuantity = e.stockQuantity - :reduceAmount WHERE e.id = :id AND e.stockQuantity >= :reduceAmount";
+        for (Map.Entry<Long, Integer> entry : purchaseItems.entrySet()) {
+            int updateCount = entityManager.createQuery(hql)
+                    .setParameter("reduceAmount", entry.getValue())
+                    .setParameter("id", entry.getKey())
+                    .executeUpdate();
+            // If any of the updates fails to update a row, throw an exception to trigger rollback
+            if (updateCount == 0) {
+                throw new Exception("Stock reduction failed for item ID " + entry.getKey());
+            }
+        }
+        // No need to return anything, method execution success means all stock was reduced
+    }
+
+
+    @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ,rollbackFor = Exception.class)
-    public Optional<List<Long>> reduceStock(Map<Long, Integer> purchaseItems) {
-        return Optional.empty();
+    public void removeItems(List<Long> ids) {
+            repo.deleteAllById(ids);
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED,rollbackFor = Exception.class)
+    public Optional<Long> addItem(ItemDTO itemDTO) {
+        Item item = repo.save(itemDTO.Item());
+        return Optional.of(item.getId()); // S3 Bucket
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ,rollbackFor = Exception.class)
-    public Optional<Integer> removeItems(List<Long> ids) {
-        repo.deleteAllById(ids);
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Long> addItem(ItemDTO item) {
-        repo.save(item.Item());
-        return Optional.empty(); // S3 Bucket
-    }
-
-    @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ,rollbackFor = Exception.class)
-    public Optional<Long> editItem(ItemDTO item) {
-        repo.save(item.Item());
-        return Optional.empty(); // S3 Bucket
+    public Optional<Long> editItem(ItemDTO itemDTO) {
+        Item item = repo.save(itemDTO.Item());
+        return Optional.of(item.getId()); // S3 Bucket
     }
 }

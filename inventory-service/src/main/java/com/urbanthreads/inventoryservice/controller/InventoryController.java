@@ -7,7 +7,9 @@ import com.urbanthreads.inventoryservice.repo.ItemRepository;
 import com.urbanthreads.inventoryservice.service.InventoryService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,26 +70,70 @@ public class InventoryController {
         return itemRepository.findById(id).orElseThrow();
     }
 
-    @GetMapping("/availableitems")
-    Map<Long, Integer> stockItemsById(@RequestParam List<Long> requestedItems) {
-        return inventoryService.stockQuantity(requestedItems).get();
+    @GetMapping("/items/availableitems")
+    public ResponseEntity<?> stockItemsById(@RequestParam List<Long> requestedItems) {
+        try {
+            Map<Long, Integer> availablity = inventoryService.stockQuantity(requestedItems).get();
+            return ResponseEntity.ok().body(availablity);
+        }
+        catch (Exception e){
+            return ResponseEntity.internalServerError().body("Failed to get stock availability for items sent." +
+                    " Check request");
+        }
     }
-    @GetMapping("/itemsbyname")
+    @GetMapping("/items/byname")
     List<ItemDTO> itemsByName(@RequestParam String name) {
         System.out.println("The name input is: "+name);
         Optional<List<ItemDTO>> optional = inventoryService.itemsByName(name);
         return optional.get();
     }
-    @PostMapping("/items")
-    Item newItem(@RequestBody Item newItem) {
-        return itemRepository.save(newItem);
+
+    @PostMapping("/items/reducestock")
+    public ResponseEntity<?> reduceStock(@RequestBody Map<Long, Integer> itemsRequested) {
+        try {
+            inventoryService.reduceStock(itemsRequested);
+            return ResponseEntity.ok().build(); // Return 200 OK with no content
+        } catch (Exception e) {
+            // Log the exception message or stack trace if needed
+            // Depending on the exception type, you might want to return different status codes
+            // For this example, I am returning 500 Internal Server Error
+            return ResponseEntity.internalServerError().body("Stock reduction failed: " + e.getMessage() +
+                    ". Check stock quantity again for this order.");
+        }
+    }
+
+    @PostMapping("/items/add")
+    public ResponseEntity<?> addItem(@RequestBody ItemDTO newItem) {
+        try {
+            Optional<Long> id = inventoryService.addItem(newItem);
+            return ResponseEntity.ok().body(id.get());
+        }
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Item insertion failed.");
+        }
     }
 
 
 
-    @DeleteMapping("/items/{id}")
-    void deleteItem(@PathVariable Long id) {
-        itemRepository.deleteById(id);
+    @DeleteMapping("/items/delete")
+    public ResponseEntity<?> deleteItem(@RequestBody List<Long> ids) {
+        try {
+            inventoryService.removeItems(ids);
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Delete failed.");
+        }
+    }
+    @PutMapping("/items/{id}/edit")
+    public ResponseEntity<?> updateItem(@PathVariable Long id, @RequestBody ItemDTO itemDTO) {
+        try {
+            Optional<Long> itemId = inventoryService.editItem(itemDTO);
+            return ResponseEntity.ok().body(itemId.get());
+        }
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Item update failed.");
+        }
     }
 
 
