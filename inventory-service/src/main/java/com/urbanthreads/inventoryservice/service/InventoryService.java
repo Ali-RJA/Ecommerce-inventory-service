@@ -23,7 +23,7 @@ public interface InventoryService {
      */
 
 
-    Optional<Page> itemPage(Pageable pageable);
+    Optional<Page<Item>> itemPage(Pageable pageable);
     Optional<List<ItemDTO>> itemsByName(String name);
     Optional<List<ItemDTO>> itemsByIds(List<Long> ids);
     Optional<Map<Long,Integer>> stockQuantity(List<Long> ids);

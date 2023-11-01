@@ -7,6 +7,9 @@ import com.urbanthreads.inventoryservice.repo.ItemRepository;
 import com.urbanthreads.inventoryservice.service.InventoryService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
@@ -61,8 +64,10 @@ public class InventoryController {
     }
 
     @GetMapping("/items")
-    List<Item> all() {
-        return itemRepository.findAll();
+    Page<Item> all(@RequestParam int pageNumber, int sizeOfPage) {
+        Pageable pageable = PageRequest.of(pageNumber, sizeOfPage); // you should set table sort ordering here
+        Optional<Page<Item>> page = inventoryService.itemPage(pageable); // returns Page<Item>
+        return page.get();
     }
 
     @GetMapping("/items/{id}")
