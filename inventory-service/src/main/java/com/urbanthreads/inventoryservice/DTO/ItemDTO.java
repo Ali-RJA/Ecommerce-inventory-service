@@ -14,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class ItemDTO {
 
+
     public ItemDTO(Item item) {
         this.id = item.getId();
         this.itemName = item.getItemName();
@@ -22,9 +23,6 @@ public class ItemDTO {
         this.description = item.getDescription();
         this.stockQuantity = item.getStockQuantity();
         this.images = item.getImages();
-    }
-    public Item Item() {
-        return null;
     }
 
     private Long id;

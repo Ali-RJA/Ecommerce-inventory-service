@@ -38,15 +38,15 @@ public class S3Service {
                 .build();
     }
     // Generates a list of presigned URLs for uploading images
-    public List<String> generatePresignedUrls(Set<String> objectKeys, Long id) {
-        List<String> presignedUrls = new ArrayList<>();
+    public Set<String> generatePresignedUrls(Set<String> objectKeys, Long id) {
+        Set<String> presignedUrls = new HashSet<>();
 
             for (String objectKey : objectKeys) {
                 PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                         .putObjectRequest(PutObjectRequest.builder()
                                 .bucket(bucketName)
                                 .key(id + "/" + objectKey)
-                                .contentType("image/") // This will match any image type
+                                .contentType("image/png") // This will match any image type
                                 .build())
                         .signatureDuration(Duration.ofMinutes(60)) // The URL will expire in 60 minutes
                         .build();

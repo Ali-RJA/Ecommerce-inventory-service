@@ -127,11 +127,11 @@ public class InventoryController {
     @PostMapping("/items/add")
     public ResponseEntity<?> addItem(@RequestBody ItemDTO newItem) {
         try {
-            Optional<Long> id = inventoryService.addItem(newItem);
-            if (id.isPresent() && newItem.getImages().size() > 0) {
-                awservice.generatePresignedUrls(newItem.getImages(), id.get());
+            Optional<ItemDTO> item = inventoryService.addItem(newItem);
+            if (item.isPresent() && newItem.getImages().size() > 0) {
+                awservice.generatePresignedUrls(newItem.getImages(), item.get().getId());
             }
-            return ResponseEntity.ok().body(id.get());
+            return ResponseEntity.ok().body(item.get());
         }
         catch (Exception e) {
             return ResponseEntity.internalServerError().body("Item insertion failed.");

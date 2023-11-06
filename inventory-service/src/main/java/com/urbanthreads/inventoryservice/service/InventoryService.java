@@ -29,7 +29,7 @@ public interface InventoryService {
     Optional<Map<Long,Integer>> stockQuantity(List<Long> ids);
     void reduceStock(Map<Long,Integer> purchaseItems) throws Exception;
     void removeItems(List<Long> ids);
-    Optional<Long> addItem(ItemDTO item);
+    Optional<ItemDTO> addItem(ItemDTO item);
     Optional<Long> editItem(ItemDTO item);
 
 

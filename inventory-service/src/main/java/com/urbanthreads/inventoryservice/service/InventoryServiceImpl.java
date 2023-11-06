@@ -24,7 +24,7 @@ import java.util.*;
 public class InventoryServiceImpl implements InventoryService{
 
     @Autowired
-    private S3Client s3Client;
+    private S3Service awservice;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -124,15 +124,25 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED,rollbackFor = Exception.class)
-    public Optional<Long> addItem(ItemDTO itemDTO) {
-        Item item = repo.save(itemDTO.Item());
-        return Optional.of(item.getId()); // S3 Bucket
+    public Optional<ItemDTO> addItem(ItemDTO itemDTO) {
+        Item item = new Item();
+        item.setImages(itemDTO.getImages());
+        item.setItemName(itemDTO.getItemName());
+        item.setCategory(itemDTO.getCategory());
+        item.setPrice(itemDTO.getPrice());
+        item.setDescription(itemDTO.getDescription());
+        item.setStockQuantity(itemDTO.getStockQuantity());
+        Item savedItem = repo.save(item);
+
+        ItemDTO newItem = new ItemDTO();
+        newItem.setImages(awservice.generatePresignedUrls(itemDTO.getImages(), savedItem.getId()));
+        newItem.setId(savedItem.getId());
+        return Optional.of(newItem); // S3 Bucket
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ,rollbackFor = Exception.class)
     public Optional<Long> editItem(ItemDTO itemDTO) {
-        Item item = repo.save(itemDTO.Item());
-        return Optional.of(item.getId()); // S3 Bucket
+        return Optional.of(2l); // S3 Bucket
     }
 }
