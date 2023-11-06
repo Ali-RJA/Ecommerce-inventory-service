@@ -21,9 +21,7 @@ public class ItemDTO {
         this.category = item.getCategory();
         this.description = item.getDescription();
         this.stockQuantity = item.getStockQuantity();
-        for (Image image : item.getImages()) {
-            this.images.add(image.getImageUrl());
-        }
+        this.images = item.getImages();
     }
     public Item Item() {
         return null;

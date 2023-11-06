@@ -2,12 +2,15 @@ package com.urbanthreads.inventoryservice.controller;
 
 
 import com.urbanthreads.inventoryservice.DTO.ItemDTO;
+import com.urbanthreads.inventoryservice.model.Image;
 import com.urbanthreads.inventoryservice.model.Item;
 import com.urbanthreads.inventoryservice.repo.ItemRepository;
 import com.urbanthreads.inventoryservice.service.InventoryService;
+import com.urbanthreads.inventoryservice.service.S3Service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/urban-threads")
@@ -27,6 +28,8 @@ public class InventoryController {
 
     @Autowired
     InventoryService inventoryService;
+    @Autowired
+    S3Service awservice;
     @PostConstruct
     public void loadItems() {
         List<Item> items = new ArrayList<>();
@@ -66,9 +69,23 @@ public class InventoryController {
     @GetMapping("/items")
     Page<Item> all(@RequestParam int pageNumber, int sizeOfPage) {
         Pageable pageable = PageRequest.of(pageNumber, sizeOfPage); // you should set table sort ordering here
-        Optional<Page<Item>> page = inventoryService.itemPage(pageable); // returns Page<Item>
-        return page.get();
+        Optional<Page<Item>> optionalPage = inventoryService.itemPage(pageable); // returns Page<Item>
+        Page<Item> page = optionalPage.get();
+        List<Item> items = page.getContent();
+        awservice.generatePresignedUrlsForItems(items);
+        Page<Item> modifiedItemsPage = new PageImpl<>(items,
+                page.getPageable(),
+                page.getTotalElements());
+
+        return modifiedItemsPage;
     }
+
+//    @GetMapping("/images")
+//    Map<Long, Set<String>> images() {
+//        List<Long> list = new ArrayList<>();
+//        list.add(25l);
+//        awservice.generatePresignedUrlsForItems(items);
+//    }
 
     @GetMapping("/items/{id}")
     Item one(@PathVariable Long id) {
@@ -111,6 +128,9 @@ public class InventoryController {
     public ResponseEntity<?> addItem(@RequestBody ItemDTO newItem) {
         try {
             Optional<Long> id = inventoryService.addItem(newItem);
+            if (id.isPresent() && newItem.getImages().size() > 0) {
+                awservice.generatePresignedUrls(newItem.getImages(), id.get());
+            }
             return ResponseEntity.ok().body(id.get());
         }
         catch (Exception e) {
