@@ -40,8 +40,20 @@ public class Item {
     private int stockQuantity;
     @Column(name = "category")
     private String category;
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Image> images = new HashSet<>();
+
+    public Set<String> getImages() {
+        return images;
+    }
+
+    public void setImages(Set<String> images) {
+        this.images = images;
+    }
+    public void addImage(String image) {
+        this.images.add(image);
+    }
+
+    @Transient
+    private Set<String> images = new HashSet<>();
 
 
     public Item() {
