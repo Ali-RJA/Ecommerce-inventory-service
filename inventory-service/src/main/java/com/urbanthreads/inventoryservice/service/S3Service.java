@@ -13,6 +13,8 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider;
 
 import java.net.URL;
 import java.time.Duration;
@@ -27,14 +29,26 @@ public class S3Service {
 
     @PostConstruct
     public void init() {
-        // This will explicitly use the environment variables for AWS credentials
-        s3Client = S3Client.builder()
-                .region(Region.of("us-east-2")) // Change to your desired region
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create()) // change
+        // Define the ARN of the IAM role you want to assume
+        String roleArn = System.getenv("MY_AWS_ARN");
+        // Create a credentials provider that assumes the IAM role
+        StsAssumeRoleCredentialsProvider roleCredentialsProvider = StsAssumeRoleCredentialsProvider.builder()
+                .stsClient(StsClient.builder()
+                        .region(Region.US_EAST_2) // Specify the AWS region for the STS client
+                        .build())
+                .refreshRequest(assumeRoleRequest -> assumeRoleRequest.roleArn(roleArn))
                 .build();
+
+        // Use the assumed role credentials provider to create the S3 client
+        s3Client = S3Client.builder()
+                .region(Region.US_EAST_2) // Change to your desired region
+                .credentialsProvider(roleCredentialsProvider)
+                .build();
+
+        // Use the assumed role credentials provider to create the S3 presigner
         s3Presigner = S3Presigner.builder()
-                .region(Region.of("us-east-2")) // Replace with your region
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .region(Region.US_EAST_2) // Replace with your region
+                .credentialsProvider(roleCredentialsProvider)
                 .build();
     }
     // Generates a list of presigned URLs for uploading images
