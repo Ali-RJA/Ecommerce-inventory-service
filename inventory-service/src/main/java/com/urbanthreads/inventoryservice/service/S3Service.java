@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider;
+import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 
 import java.net.URL;
 import java.time.Duration;
@@ -30,13 +31,23 @@ public class S3Service {
     @PostConstruct
     public void init() {
         // Define the ARN of the IAM role you want to assume
-        String roleArn = System.getenv("MY_AWS_ARN");
+        String roleArn = "arn:aws:iam::148671556211:role/urban-threads-s3";
+
+        // Specify a unique role session name for the assumed session
+        String roleSessionName = "UrbanThreadsSession"; // Replace with your desired session name
+
+        // Create an AssumeRoleRequest with the role ARN and session name
+        AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
+                .roleArn(roleArn)
+                .roleSessionName(roleSessionName)
+                .build();
+
         // Create a credentials provider that assumes the IAM role
         StsAssumeRoleCredentialsProvider roleCredentialsProvider = StsAssumeRoleCredentialsProvider.builder()
                 .stsClient(StsClient.builder()
                         .region(Region.US_EAST_2) // Specify the AWS region for the STS client
                         .build())
-                .refreshRequest(assumeRoleRequest -> assumeRoleRequest.roleArn(roleArn))
+                .refreshRequest(assumeRoleRequest) // Use the AssumeRoleRequest
                 .build();
 
         // Use the assumed role credentials provider to create the S3 client
