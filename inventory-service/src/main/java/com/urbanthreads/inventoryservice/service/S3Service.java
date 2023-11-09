@@ -30,7 +30,7 @@ public class S3Service {
         // This will explicitly use the environment variables for AWS credentials
         s3Client = S3Client.builder()
                 .region(Region.of("us-east-2")) // Change to your desired region
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create()) // change
                 .build();
         s3Presigner = S3Presigner.builder()
                 .region(Region.of("us-east-2")) // Replace with your region
